@@ -31,11 +31,7 @@ impl Universe {
 
         let cells = (0..width * height)
             .map(|i| {
-                if i % 2 == 0 || i % 7 == 0 {
-                    Cell::Alive
-                } else {
-                    Cell::Dead
-                }
+                Cell::Dead
             })
             .collect();
 
@@ -102,6 +98,23 @@ impl Universe {
 
     pub fn render(&self) -> String {
         self.to_string()
+    }
+
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
+    pub fn height(&self) -> u32 {
+        self.height
+    }
+
+    pub fn cells(&self) -> *const Cell {
+        self.cells.as_ptr()
+    }
+
+    pub fn set_cell(&mut self, row: u32, column: u32, state: Cell) {
+        let idx = self.get_index(row, column);
+        self.cells[idx] = state;
     }
 }
 
