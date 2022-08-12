@@ -1,6 +1,7 @@
 mod utils;
 
 use wasm_bindgen::prelude::*;
+use std::fmt;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -30,7 +31,7 @@ impl Universe {
         let height = 64;
 
         let cells = (0..width * height)
-            .map(|i| {
+            .map(|_| {
                 Cell::Dead
             })
             .collect();
@@ -116,15 +117,39 @@ impl Universe {
         let idx = self.get_index(row, column);
         self.cells[idx] = state;
     }
+
+    pub fn set_width(&mut self, width: u32) {
+        self.width = width;
+        self.cells = (0..width * self.height).map(|_| Cell::Dead).collect()
+    }
+
+    pub fn set_height(&mut self, height: u32) {
+        self.height = height;
+        self.cells = (0..height * self.width).map(|_| Cell::Alive).collect()
+    }
 }
 
-use std::fmt;
+impl Universe {
+    /// Get the dead and alive values of the entire universe.
+    pub fn get_cells(&self) -> &[Cell] {
+        &self.cells
+    }
+
+    /// Set cells to be alive in a universe by passing the row and column
+    /// of each cell as an array.
+    pub fn set_cells(&mut self, cells: &[(u32, u32)]) {
+        for (row, col) in cells.iter().cloned() {
+            let idx = self.get_index(row, col);
+            self.cells[idx] = Cell::Alive;
+        }
+    }
+}
 
 impl fmt::Display for Universe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for line in self.cells.as_slice().chunks(self.width as usize) {
             for &cell in line {
-                let symbol = if cell == Cell::Dead { '◻' } else { '◼' };
+                let symbol = if cell == Cell::Dead { '⬛' } else { '⬜' };
                 write!(f, "{}", symbol)?;
             }
             write!(f, "\n")?;
